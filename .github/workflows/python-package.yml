@@ -70,6 +70,7 @@ jobs:
 
   # To ensure ALL jobs passed
   merge-gate:
+    name: Merge Gate
     runs-on: ubuntu-latest
     needs: [quality-checks, build]
     if: always() # Run even if some jobs fail
