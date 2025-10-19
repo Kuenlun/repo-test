@@ -67,3 +67,37 @@ jobs:
 
       - name: Test with pytest
         run: pytest
+
+  # Aggregator job - this ensures ALL jobs passed
+  all-jobs-passed:
+    name: All Jobs Status Check
+    runs-on: ubuntu-latest
+    needs: [quality-checks, build]
+    if: always() # Run even if some jobs fail
+    steps:
+      - name: Check all job statuses
+        run: |
+          echo "Checking status of all jobs..."
+
+          # Convert needs context to JSON for easier parsing
+          echo "Job statuses:"
+          echo "  quality-checks: ${{ needs.quality-checks.result }}"
+          echo "  build: ${{ needs.build.result }}"
+
+          # Check if any job failed or was cancelled
+          if [[ "${{ contains(needs.*.result, 'failure') }}" == "true" ]]; then
+            echo "❌ At least one job failed"
+            exit 1
+          fi
+
+          if [[ "${{ contains(needs.*.result, 'cancelled') }}" == "true" ]]; then
+            echo "❌ At least one job was cancelled"
+            exit 1
+          fi
+
+          echo "✅ All jobs passed successfully"
+
+      - name: Report success
+        if: success()
+        run: |
+          echo "🎉 All checks passed! Ready to merge."
