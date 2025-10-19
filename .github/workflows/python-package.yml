@@ -69,7 +69,7 @@ jobs:
         run: pytest
 
   # To ensure ALL jobs passed
-  all-jobs-passed:
+  merge-gate:
     runs-on: ubuntu-latest
     needs: [quality-checks, build]
     if: always() # Run even if some jobs fail
