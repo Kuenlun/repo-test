@@ -15,4 +15,10 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-pass
+"""Script to pass quality-checks CI job for merge approval."""
+
+import subprocess
+
+subprocess.run("python scripts/check_gpl_headers.py", shell=True, check=True)
+subprocess.run("ruff check --fix .", shell=True, check=True)
+subprocess.run("pytest --cov --cov-fail-under=100", shell=True, check=True)

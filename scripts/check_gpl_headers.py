@@ -16,7 +16,7 @@
 
 
 """
-Script to verify that all .py files start exactly with the required GPL v3 header
+Script to verify that all .py files start exactly with the required GPL v3 header.
 """
 
 import sys
