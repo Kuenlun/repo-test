@@ -56,7 +56,7 @@ jobs:
   # Full test matrix - only runs if quality checks pass
   build:
     needs: quality-checks
-    if: ${{ needs.quality-checks.result == 'success' }}
+    if: success()
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
