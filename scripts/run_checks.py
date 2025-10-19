@@ -19,6 +19,30 @@
 
 import subprocess
 
-subprocess.run("python scripts/check_gpl_headers.py", shell=True, check=True)
-subprocess.run("ruff check --fix .", shell=True, check=True)
-subprocess.run("pytest --cov --cov-fail-under=100", shell=True, check=True)
+from rich.console import Console
+from rich.panel import Panel
+
+console = Console()
+
+checks = []
+try:
+    console.print("🔍 GPL Headers...", style="blue")
+    subprocess.run("python scripts/check_gpl_headers.py", shell=True, check=True)
+    checks.append("✅ GPL Headers")
+
+    console.print("🔧 Ruff (check & format)...", style="blue")
+    subprocess.run("ruff check --fix .", shell=True, check=True)
+    subprocess.run("ruff format .", shell=True, check=True)
+    checks.append("✅ Ruff (Check & Format)")
+
+    console.print("🧪 Tests & coverage...", style="blue")
+    subprocess.run("pytest --cov --cov-fail-under=100", shell=True, check=True)
+    checks.append("✅ Tests & Coverage")
+
+    summary = "\n".join(checks) + "\n\n🎉 ALL CHECKS PASSED!"
+    console.print(Panel(summary, style="bold green", title="Summary"))
+except subprocess.CalledProcessError as e:
+    failed_check = f"❌ {e.cmd}"
+    summary = "\n".join(checks) + f"\n{failed_check}" if checks else failed_check
+    console.print(Panel(summary, style="bold red", title="Summary"))
+    exit(1)
