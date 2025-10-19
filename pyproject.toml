@@ -1,7 +1,7 @@
 [tool.ruff]
 # Applies to both linter and formatter unless overridden.
 line-length = 88
-target-version = "py310"
+target-version = "py313"
 
 [tool.ruff.lint]
 # Rule sets:
