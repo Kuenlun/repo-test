@@ -1,15 +1,36 @@
-name: Python Quality Checks
+name: Python package
 
 on:
   push:
     branches: ["master"]
+    # Skip CI runs when only docs or markdown files change
+    paths-ignore:
+      - "**/*.md"
+      - ".github/ISSUE_TEMPLATE/**"
+      - "docs/**"
   pull_request:
     branches: ["master"]
+    # Skip CI runs when only docs or markdown files change
+    paths-ignore:
+      - "**/*.md"
+      - ".github/ISSUE_TEMPLATE/**"
+      - "docs/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read # Principle of least privilege for GITHUB_TOKEN
+
+concurrency:
+  # Cancel previous runs on the same branch to avoid duplicate jobs
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  # Fast quality checks - fail fast if code quality is poor
+  # Fast-fail on formatting/lint to stop early if code quality is poor
   quality-checks:
+    name: Fast-fail on formatting/lint
     runs-on: ubuntu-latest
+    timeout-minutes: 1
     steps:
       - uses: actions/checkout@v5
 
@@ -17,6 +38,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.13"
+          cache: pip
 
       - name: Install ruff
         run: python -m pip install --upgrade pip ruff
@@ -27,7 +49,33 @@ jobs:
       - name: Check formatting with Ruff
         run: ruff format --check .
 
-  # Call the test matrix workflow
-  call-test-matrix:
+      - name: CI summary
+        if: success()
+        run: echo "### Formatting and lint checks passed ✅" >> "$GITHUB_STEP_SUMMARY"
+
+  # Full test matrix - only runs if quality checks pass
+  build:
     needs: quality-checks
-    uses: ./.github/workflows/test-matrix.yml
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pytest
+
+      - name: Test with pytest
+        run: pytest
