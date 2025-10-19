@@ -3,19 +3,8 @@ name: Python package
 on:
   push:
     branches: ["master"]
-    # Skip CI runs when only docs or markdown files change
-    paths-ignore:
-      - "**/*.md"
-      - ".github/ISSUE_TEMPLATE/**"
-      - "docs/**"
   pull_request:
     branches: ["master"]
-    # Skip CI runs when only docs or markdown files change
-    paths-ignore:
-      - "**/*.md"
-      - ".github/ISSUE_TEMPLATE/**"
-      - "docs/**"
-  workflow_dispatch:
 
 permissions:
   contents: read # Principle of least privilege for GITHUB_TOKEN
