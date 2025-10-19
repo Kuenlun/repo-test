@@ -17,7 +17,6 @@ concurrency:
 jobs:
   # Fast-fail on formatting/lint to stop early if code quality is poor
   quality-checks:
-    name: Fast-fail on formatting/lint
     runs-on: ubuntu-latest
     timeout-minutes: 1
     steps:
