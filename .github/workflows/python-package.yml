@@ -45,6 +45,7 @@ jobs:
   build:
     needs: quality-checks
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
@@ -84,12 +85,13 @@ jobs:
           echo "  quality-checks: ${{ needs.quality-checks.result }}"
           echo "  build: ${{ needs.build.result }}"
 
-          # Check if any job failed or was cancelled
+          # Check if any job failed
           if [[ "${{ contains(needs.*.result, 'failure') }}" == "true" ]]; then
             echo "❌ At least one job failed"
             exit 1
           fi
 
+          # Check if any job was cancelled
           if [[ "${{ contains(needs.*.result, 'cancelled') }}" == "true" ]]; then
             echo "❌ At least one job was cancelled"
             exit 1
