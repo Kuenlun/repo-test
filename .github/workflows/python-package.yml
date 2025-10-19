@@ -28,14 +28,19 @@ jobs:
           python-version: "3.13"
           cache: pip
 
-      - name: Install ruff
-        run: python -m pip install --upgrade pip ruff
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip ruff pytest pytest-cov
 
       - name: Lint with Ruff
         run: ruff check .
 
       - name: Check formatting with Ruff
         run: ruff format --check .
+
+      - name: Check 100% test coverage
+        run: |
+          pytest --cov=main --cov-report=term --cov-fail-under=100
+          echo "✅ 100% code coverage achieved"
 
       - name: CI summary
         if: success()
