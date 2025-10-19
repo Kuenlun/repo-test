@@ -1,6 +1,6 @@
-import pytest
+import runpy
 
-
-@pytest.mark.skip
 def test_main():
-    pass
+    import main
+    main.main()
+    runpy.run_module("main", run_name="__main__")
