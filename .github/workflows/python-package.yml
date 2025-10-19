@@ -29,7 +29,9 @@ jobs:
           cache: pip
 
       - name: Install dependencies
-        run: python -m pip install --upgrade pip ruff pytest pytest-cov
+        run: |
+          python -m pip install --upgrade pip ruff pytest pytest-cov
+          python -m pip install -e .
 
       - name: Lint with Ruff
         run: ruff check .
@@ -70,11 +72,12 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install pytest
+          python -m pip install -e .
 
       - name: Test with pytest
         run: pytest
 
-  # To ensure ALL jobs passed
+  # To ensure ALL jobs passed - Required for branch protection
   merge-gate:
     name: Merge Gate
     runs-on: ubuntu-latest
@@ -84,21 +87,18 @@ jobs:
       - name: Check all job statuses
         run: |
           echo "Checking status of all jobs..."
-
-          # Convert needs context to JSON for easier parsing
           echo "Job statuses:"
           echo "  quality-checks: ${{ needs.quality-checks.result }}"
           echo "  build: ${{ needs.build.result }}"
 
-          # Check if any job failed
-          if [[ "${{ contains(needs.*.result, 'failure') }}" == "true" ]]; then
-            echo "❌ At least one job failed"
+          # Check each job explicitly
+          if [ "${{ needs.quality-checks.result }}" != "success" ]; then
+            echo "❌ Quality checks failed"
             exit 1
           fi
 
-          # Check if any job was cancelled
-          if [[ "${{ contains(needs.*.result, 'cancelled') }}" == "true" ]]; then
-            echo "❌ At least one job was cancelled"
+          if [ "${{ needs.build.result }}" != "success" ]; then
+            echo "❌ Build job failed"
             exit 1
           fi
 
