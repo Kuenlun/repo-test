@@ -1,3 +1,24 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vaultlint"
+dynamic = ["version"]
+description = "A modular linter for Obsidian that validates Markdown, YAML front matter, and vault structure"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = ["rich>=14.2.0"]
+
+[project.scripts]
+vaultlint = "vaultlint.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.dynamic]
+version = { attr = "vaultlint.__version__" }
+
 [tool.ruff]
 # Applies to both linter and formatter unless overridden.
 line-length = 88
@@ -24,3 +45,11 @@ known-first-party = ["vaultlint"]
 quote-style = "preserve"          # keep existing single/double quotes
 indent-style = "space"            # use spaces for indentation
 skip-magic-trailing-comma = false
+
+[tool.coverage.run]
+source = ["src"]
+omit = ["tests/*"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false
