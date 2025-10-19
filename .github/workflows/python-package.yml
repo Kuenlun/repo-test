@@ -28,6 +28,9 @@ jobs:
           python-version: "3.13"
           cache: pip
 
+      - name: Check GPL v3 license headers
+        run: python scripts/check_gpl_headers.py
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip ruff pytest pytest-cov
