@@ -18,7 +18,7 @@ jobs:
   # Fast-fail on formatting/lint to stop early if code quality is poor
   quality-checks:
     runs-on: ubuntu-latest
-    timeout-minutes: 1
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v5
 
