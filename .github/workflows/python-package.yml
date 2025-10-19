@@ -40,8 +40,10 @@ jobs:
         run: ruff format --check .
 
       - name: Check 100% test coverage
+        env:
+          PACKAGE_NAME: vaultlint
         run: |
-          pytest --cov=main --cov-report=term --cov-fail-under=100
+          pytest --cov=$PACKAGE_NAME --cov-report=term --cov-fail-under=100
           echo "✅ 100% code coverage achieved"
 
       - name: CI summary
