@@ -15,7 +15,5 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-"""vaultlint core package."""
-
 __all__ = ["__version__"]
 __version__ = "0.0.1"
