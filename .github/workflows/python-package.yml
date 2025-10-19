@@ -51,7 +51,7 @@ jobs:
         run: echo "### Formatting and lint checks passed ✅" >> "$GITHUB_STEP_SUMMARY"
 
   # Full test matrix - only runs if quality checks pass
-  build:
+  test-matrix:
     needs: quality-checks
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
@@ -79,11 +79,12 @@ jobs:
       - name: Test with pytest
         run: pytest
 
-  # To ensure ALL jobs passed - Required for branch protection
-  merge-gate:
-    name: Merge Gate
+  # Single required check for branch protection - aggregates all job results
+  check-aggregator:
+    name: Check Aggregator
     runs-on: ubuntu-latest
-    needs: [quality-checks, build]
+    timeout-minutes: 5
+    needs: [quality-checks, test-matrix]
     if: always() # Run even if some jobs fail
     steps:
       - name: Check all job statuses
@@ -91,7 +92,7 @@ jobs:
           echo "Checking status of all jobs..."
           echo "Job statuses:"
           echo "  quality-checks: ${{ needs.quality-checks.result }}"
-          echo "  build: ${{ needs.build.result }}"
+          echo "  test-matrix: ${{ needs.test-matrix.result }}"
 
           # Check each job explicitly
           if [ "${{ needs.quality-checks.result }}" != "success" ]; then
@@ -99,8 +100,8 @@ jobs:
             exit 1
           fi
 
-          if [ "${{ needs.build.result }}" != "success" ]; then
-            echo "❌ Build job failed"
+          if [ "${{ needs.test-matrix.result }}" != "success" ]; then
+            echo "❌ Test matrix failed"
             exit 1
           fi
 
