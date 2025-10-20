@@ -1,14 +1,18 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
 name = "vaultlint"
+# Version is set dynamically from 'vaultlint.__version__'
 dynamic = ["version"]
 description = "A modular linter for Obsidian that validates Markdown, YAML front matter, and vault structure"
 readme = "README.md"
-requires-python = ">=3.9"
-dependencies = ["rich>=14.2.0"]
+requires-python = ">=3.10"
+license = "GPL-3.0-or-later"
+authors = [{ name = "Juan Luis Leal Contreras (Kuenlun)" }]
+
+dependencies = ["click~=8.3", "rich~=14.2", "rich-click~=1.9"]
 
 [project.scripts]
 vaultlint = "vaultlint.cli:main"
@@ -53,3 +57,6 @@ omit = ["tests/*"]
 [tool.coverage.report]
 show_missing = true
 skip_covered = false
+
+[tool.hatch.version]
+path = "src/vaultlint/__init__.py"

@@ -1,4 +1,4 @@
-# vaultlint - Obsidian vault linter
+# VaultLint - Obsidian Vault Linter
 # Copyright (C) 2025  Juan Luis Leal Contreras (Kuenlun)
 #
 # This program is free software: you can redistribute it and/or modify
