@@ -21,10 +21,19 @@ from rich.console import Console
 
 @click.command()
 @click.argument('vault_path', type=click.Path(exists=True), default='.')
+@click.option(
+    '-s',
+    '--spec',
+    type=click.Path(exists=True),
+    required=False,
+    help="Specification file for structure checking",
+)
 @click.option('--verbose', '-v', count=True, help="Increase verbosity level")
-def cli(vault_path, verbose):
+def cli(vault_path, spec, verbose):
     console = Console()
     console.print(f"Linting vault at {vault_path}", style="bold blue")
+    if spec:
+        console.print(f"Using specification file: {spec}", style="dim")
     if verbose >= 1:
         console.print("Verbose mode enabled", style="dim")
     if verbose >= 2:
