@@ -1,4 +1,4 @@
-# vaultlint - Obsidian vault linter
+# VaultLint - Obsidian Vault Linter
 # Copyright (C) 2025  Juan Luis Leal Contreras (Kuenlun)
 #
 # This program is free software: you can redistribute it and/or modify
@@ -23,7 +23,7 @@ import sys
 from pathlib import Path
 
 # The EXACT GPL header that must appear at the start of every .py file
-REQUIRED_GPL_HEADER = '''# vaultlint - Obsidian vault linter
+REQUIRED_GPL_HEADER = '''# VaultLint - Obsidian Vault Linter
 # Copyright (C) 2025  Juan Luis Leal Contreras (Kuenlun)
 #
 # This program is free software: you can redistribute it and/or modify
