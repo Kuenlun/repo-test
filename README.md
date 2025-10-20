@@ -1,6 +1,6 @@
 # vaultlint
 
-Obsidian vault 
+Obsidian vault linter 
 
 A linter for Obsidian vaults to ensure consistency and organization.
 
@@ -25,6 +25,6 @@ A linter for Obsidian vaults to ensure consistency and organization.
 
 * ✅ **100% Code Coverage** - Mandatory 100% code coverage
 * 🧪 **Complete Test Suite** - All tests must pass before merging
-* 🐍 **Multi-Python Support** - Tested on Python 3.9, 3.10, 3.11, 3.12, and 3.13
+* 🐍 **Multi-Python Support** - Tested on Python 3.10, 3.11, 3.12, and 3.13
 * 🖥️ **Cross-Platform** - Verified on Linux, macOS, and Windows
 * 🎯 **Simple & Effective** - The good, if brief, is twice as good
