@@ -15,9 +15,23 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-def run() -> int:
-    return 0
+import click
+from rich.console import Console
+
+
+@click.command()
+@click.argument('vault_path', type=click.Path(exists=True), default='.')
+@click.option('--verbose', '-v', count=True, help="Increase verbosity level")
+def cli(vault_path, verbose):
+    console = Console()
+    console.print(f"Linting vault at {vault_path}", style="bold blue")
+    if verbose >= 1:
+        console.print("Verbose mode enabled", style="dim")
+    if verbose >= 2:
+        console.print("Extra verbose details...", style="yellow")
+    # Placeholder for actual linting logic
+    console.print("Linting complete!", style="green")
 
 
 def main() -> int:
-    return run()
+    return cli.main(standalone_mode=False)
