@@ -1,52 +1,85 @@
 name: PR Validation
 
 on:
-    pull_request:
-        types: [opened, edited, synchronize]
+  pull_request:
+    types: [opened, edited, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: pr-validation-${{ github.event.pull_request.id }}
+  cancel-in-progress: true
 
 jobs:
-    validate-pr-description:
-        runs-on: ubuntu-latest
-        steps:
-            - name: Check PR description has content
-              uses: actions/github-script@v7
-              with:
-                  script: |
-                      const prBody = context.payload.pull_request.body || '';
+  validate-pr-description:
+    if: ${{ !github.event.pull_request.draft }} # skip drafts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check PR description has content
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = (context.payload.pull_request.body || '').replace(/\r\n/g, '\n');
 
-                      // Check if any of the sections has at least one item
-                      const sections = ['### Added', '### Removed', '### Changed', '### Fixed'];
-                      let hasContent = false;
+            // Remove HTML comments
+            const withoutComments = body.replace(/<!--[\s\S]*?-->/g, '');
 
-                      for (const section of sections) {
-                        const sectionIndex = prBody.indexOf(section);
-                        if (sectionIndex !== -1) {
-                          const nextSectionIndex = sections
-                            .map(s => prBody.indexOf(s, sectionIndex + 1))
-                            .filter(i => i !== -1 && i > sectionIndex)
-                            .sort((a, b) => a - b)[0] || prBody.length;
-                          
-                          const sectionContent = prBody.substring(sectionIndex, nextSectionIndex);
-                          
-                          // Remove all HTML comments (including multi-line) from sectionContent
-                          const cleanedSectionContent = sectionContent.replace(/<!--[\s\S]*?-->/g, '');
-                          
-                          // Check if section has content beyond just "-"
-                          const lines = cleanedSectionContent.split('\n').slice(1); // Skip section header
-                          const contentLines = lines.filter(line => 
-                            line.trim() && 
-                            line.trim() !== '-'
-                          );
-                          
-                          if (contentLines.length > 0) {
-                            hasContent = true;
-                            break;
-                          }
-                        }
-                      }
+            // Build a case-insensitive regex to capture each target section block
+            const sectionNames = ['Added','Removed','Changed','Fixed'];
+            const headerRe = new RegExp(`^###\\s+(?:${sectionNames.join('|')})\\s*$`, 'gim');
 
-                      if (!hasContent) {
-                        core.setFailed('PR description must include at least one item in the Added, Removed, Changed, or Fixed sections.');
-                      } else {
-                        console.log('✅ PR has valid content in at least one section.');
-                      }
+            // Find all headers with indices
+            const headers = [];
+            let m;
+            while ((m = headerRe.exec(withoutComments)) !== null) {
+              headers.push({ name: m[0].trim().slice(4).trim(), index: m.index });
+            }
+
+            // If there are no target headers at all, fail
+            if (headers.length === 0) {
+              core.setFailed('PR description must contain at least one of the sections: ### Added, ### Removed, ### Changed, or ### Fixed.');
+              return;
+            }
+
+            // Slice each section block up to next header
+            const blocks = headers.map((h, i) => {
+              const start = h.index;
+              const end = i + 1 < headers.length ? headers[i + 1].index : withoutComments.length;
+              const text = withoutComments.slice(start, end);
+
+              // Remove the header line
+              const lines = text.split('\n').slice(1).map(l => l.trim());
+
+              // Count meaningful list items:
+              // - allow '-', '*', or numbered lists
+              // - ignore empty dashes, unchecked boxes, or pure whitespace
+              const meaningful = lines.filter(l => {
+                // ignore code fences context by removing fenced code blocks quickly
+                if (/^```/.test(l)) return false;
+                if (!l) return false;
+                if (/^[-*]\s*$/.test(l)) return false;
+                if (/^[-*]\s*\[\s?\]\s*$/.test(l)) return false; // empty task item
+                if (/^\d+\.\s*$/.test(l)) return false; // numbered placeholder
+                // Consider a line meaningful if it looks like a list or a non-empty bullet content
+                return /^[-*]\s+.+/.test(l) || /^\d+\.\s+.+/.test(l) || l.length > 0;
+              });
+
+              return { name: h.name, hasContent: meaningful.length > 0, missingExamples: meaningful.length === 0 ? lines.slice(0, 3) : [] };
+            });
+
+            const filled = blocks.some(b => b.hasContent);
+            if (!filled) {
+              // Build a helpful summary
+              const emptySections = blocks.map(b => b.name).join(', ');
+              core.summary
+                .addHeading('PR Validation')
+                .addParagraph('No content found in the required sections.')
+                .addList(blocks.map(b => `### ${b.name}: ${b.hasContent ? 'OK' : 'Empty'}`))
+                .write();
+
+              core.setFailed('PR description must include at least one non-empty item under ### Added, ### Removed, ### Changed, or ### Fixed.');
+            } else {
+              console.log('PR has valid content in at least one of the required sections.');
+            }
