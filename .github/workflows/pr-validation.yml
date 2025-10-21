@@ -58,7 +58,7 @@ jobs:
               return { name: h.name, hasContent: meaningful.length > 0 };
             });
 
-            const filled = blocks.some(b => b.hasContent);
+                .addList(blocks.map(b => `${b.name}: ${b.hasContent ? 'OK' : 'Empty'}`))
             if (!filled) {
               await core.summary
                 .addHeading('PR Validation')
