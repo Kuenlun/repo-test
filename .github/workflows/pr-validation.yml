@@ -28,12 +28,14 @@ jobs:
                           
                           const sectionContent = prBody.substring(sectionIndex, nextSectionIndex);
                           
+                          // Remove all HTML comments (including multi-line) from sectionContent
+                          const cleanedSectionContent = sectionContent.replace(/<!--[\s\S]*?-->/g, '');
+                          
                           // Check if section has content beyond just "-"
-                          const lines = sectionContent.split('\n').slice(1); // Skip section header
+                          const lines = cleanedSectionContent.split('\n').slice(1); // Skip section header
                           const contentLines = lines.filter(line => 
                             line.trim() && 
-                            line.trim() !== '-' && 
-                            !line.trim().startsWith('<!--')
+                            line.trim() !== '-'
                           );
                           
                           if (contentLines.length > 0) {
