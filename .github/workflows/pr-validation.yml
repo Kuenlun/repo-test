@@ -1,0 +1,50 @@
+name: PR Validation
+
+on:
+    pull_request:
+        types: [opened, edited, synchronize]
+
+jobs:
+    validate-pr-description:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Check PR description has content
+              uses: actions/github-script@v7
+              with:
+                  script: |
+                      const prBody = context.payload.pull_request.body || '';
+
+                      // Check if any of the sections has at least one item
+                      const sections = ['### Added', '### Removed', '### Changed', '### Fixed'];
+                      let hasContent = false;
+
+                      for (const section of sections) {
+                        const sectionIndex = prBody.indexOf(section);
+                        if (sectionIndex !== -1) {
+                          const nextSectionIndex = sections
+                            .map(s => prBody.indexOf(s, sectionIndex + 1))
+                            .filter(i => i > sectionIndex)
+                            .sort((a, b) => a - b)[0] || prBody.length;
+                          
+                          const sectionContent = prBody.substring(sectionIndex, nextSectionIndex);
+                          
+                          // Check if section has content beyond just "-"
+                          const lines = sectionContent.split('\n').slice(1); // Skip section header
+                          const contentLines = lines.filter(line => 
+                            line.trim() && 
+                            line.trim() !== '-' && 
+                            !line.trim().startsWith('<!--')
+                          );
+                          
+                          if (contentLines.length > 0) {
+                            hasContent = true;
+                            break;
+                          }
+                        }
+                      }
+
+                      if (!hasContent) {
+                        core.setFailed('PR description must include at least one item in the Added, Removed, Changed, or Fixed sections.');
+                      } else {
+                        console.log('✅ PR has valid content in at least one section.');
+                      }
