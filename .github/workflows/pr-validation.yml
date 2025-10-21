@@ -23,7 +23,7 @@ jobs:
                         if (sectionIndex !== -1) {
                           const nextSectionIndex = sections
                             .map(s => prBody.indexOf(s, sectionIndex + 1))
-                            .filter(i => i > sectionIndex)
+                            .filter(i => i !== -1 && i > sectionIndex)
                             .sort((a, b) => a - b)[0] || prBody.length;
                           
                           const sectionContent = prBody.substring(sectionIndex, nextSectionIndex);
