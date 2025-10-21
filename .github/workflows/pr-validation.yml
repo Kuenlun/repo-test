@@ -42,8 +42,13 @@ jobs:
               const end = i + 1 < headers.length ? headers[i + 1].index : withoutComments.length;
               const text = withoutComments.slice(start, end);
               const lines = text.split('\n').slice(1).map(l => l.trim());
+              let inCodeBlock = false;
               const meaningful = lines.filter(l => {
-                if (/^```/.test(l)) return false;
+                if (/^```/.test(l)) {
+                  inCodeBlock = !inCodeBlock;
+                  return false;
+                }
+                if (inCodeBlock) return false;
                 if (!l) return false;
                 if (/^[-*]\s*$/.test(l)) return false;
                 if (/^[-*]\s*\[\s?\]\s*$/.test(l)) return false;
