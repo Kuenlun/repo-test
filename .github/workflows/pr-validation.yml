@@ -48,7 +48,7 @@ jobs:
                 if (/^[-*]\s*$/.test(l)) return false;
                 if (/^[-*]\s*\[\s?\]\s*$/.test(l)) return false;
                 if (/^\d+\.\s*$/.test(l)) return false;
-                return /^[-*]\s+.+/.test(l) || /^\d+\.\s+.+/.test(l) || l.length > 0;
+                return /^[-*]\s+.+/.test(l) || /^\d+\.\s+.+/.test(l);
               });
               return { name: h.name, hasContent: meaningful.length > 0 };
             });
