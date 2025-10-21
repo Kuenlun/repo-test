@@ -58,18 +58,19 @@ jobs:
               return { name: h.name, hasContent: meaningful.length > 0 };
             });
 
-                .addList(blocks.map(b => `${b.name}: ${b.hasContent ? 'OK' : 'Empty'}`))
+            const filled = blocks.some(b => b.hasContent);
             if (!filled) {
               await core.summary
                 .addHeading('PR Validation')
                 .addRaw('No content found in the required sections.\n\n')
-                .addList(blocks.map(b => `### ${b.name}: ${b.hasContent ? 'OK' : 'Empty'}`))
+                .addList(blocks.map(b => `${b.name}: ${b.hasContent ? 'OK' : 'Empty'}`))
                 .write();
               core.setFailed('PR description must include at least one non-empty item under ### Added, ### Removed, ### Changed, or ### Fixed.');
             } else {
               await core.summary
                 .addHeading('PR Validation')
                 .addRaw('At least one section contains content.\n')
+                .addList(blocks.map(b => `${b.name}: ${b.hasContent ? 'OK' : 'Empty'}`))
                 .write();
               console.log('PR has valid content in at least one of the required sections.');
             }
